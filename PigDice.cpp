@@ -1,14 +1,44 @@
 #include <iostream>
-#include <cstdlib>
-#include <ctime>
+#include <random>
 using namespace std;
 
+class Die {
+private:
+    int m_value;
+    int m_numSides;
+
+public:
+    Die() {
+        m_value = 0;
+        m_numSides = 6;
+    }
+
+    void setValue() {
+        random_device rd;
+        mt19937 gen(rd());
+        uniform_int_distribution<int> dis(1, m_numSides);
+        m_value = dis(gen);
+    }
+
+    int getValue() {
+        return m_value;
+    }
+
+    void setNumSides(int numSides) {
+        m_numSides = numSides;
+    }
+
+    int getNumSides() {
+        return m_numSides;
+    }
+};
+
 struct GameState {
-    int gameScore;      // total banked score for the game
-    int turnCount;      // how many turns have been completed
-    int scoreThisTurn;  // running score for the current turn
-    bool gameOver;       // controls the main game loop
-    bool turnOver;        // controls the loop inside a single turn
+    int gameScore;
+    int turnCount;
+    int scoreThisTurn;
+    bool gameOver;
+    bool turnOver;
 };
 
 void displayRules();
@@ -18,10 +48,6 @@ void roll(GameState &g);
 void hold(GameState &g);
 
 int main() {
-    //SRAND + time(NULL) so we don't get the same sequence of rolls every time the program runs.
-  
-    srand(static_cast<unsigned int>(time(nullptr)));
-
     GameState game;
     game.gameScore = 0;
     game.turnCount = 0;
@@ -56,7 +82,6 @@ void playGame(GameState &g) {
         if (g.gameScore >= 20) {
             g.gameOver = true;
         } else {
-            // Reset for the next turn.
             g.turnOver = false;
             g.scoreThisTurn = 0;
         }
@@ -87,19 +112,19 @@ void takeTurn(GameState &g) {
     cout << "Score Banked This Turn: " << g.scoreThisTurn << endl;
 }
 
-
 void roll(GameState &g) {
-    int die = (rand() % 6) + 1;
+    Die die;
+    die.setValue();
 
-    cout << "Die: " << die;
+    cout << "Die: " << die.getValue();
 
-    if (die == 1) {
+    if (die.getValue() == 1) {
         cout << endl;
         cout << "Turn over. No score." << endl;
         g.scoreThisTurn = 0;
         g.turnOver = true;
     } else {
-        g.scoreThisTurn += die;
+        g.scoreThisTurn += die.getValue();
         cout << " - Running score this turn: " << g.scoreThisTurn << endl;
     }
 }
